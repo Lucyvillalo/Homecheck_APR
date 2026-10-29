@@ -28,7 +28,7 @@ No hay Firebase Storage ni despliegue de funciones de servidor. Las evidencias y
 
 ## Configuración y entrega
 
-`firebase-config.example.json` documenta los tres valores públicos de cliente Android necesarios. El archivo real se genera con `scripts/configure-firebase.ps1` y está excluido de Git. La seguridad depende de Authentication y las reglas, no de ocultar una API key de cliente.
+`firebase-config.example.json` documenta los tres valores públicos de cliente Android necesarios. El archivo real del equipo se incluye en Git para que sus integrantes puedan compilar directamente. `scripts/configure-firebase.ps1` permite actualizarlo si cambia el proyecto Firebase. Puede incluir también el nombre público storageBucket; esto no habilita Storage ni facturación. La seguridad depende de Authentication y las reglas, no de ocultar una API key de cliente.
 
 La carpeta `.git` es el historial local y se conserva en el proyecto de trabajo. Las carpetas `.gradle`, `.kotlin` y build son regenerables. La entrega directa conserva únicamente el APK verificado dentro de build; Gradle regenera el resto. La configuración de emuladores está en firebase/firebase.emulators.json.
 

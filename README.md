@@ -7,7 +7,7 @@ Aplicación Android en Kotlin y Jetpack Compose para inspecciones residenciales 
 1. Abrir esta carpeta **Homecheck_APR** en Android Studio.
 2. Usar JDK 21, Android SDK 37 y Android 7/API 24 o superior. El wrapper incluido usa Gradle 9.6.0.
 3. Sincronizar Gradle y ejecutar el módulo `app`.
-4. Si falta la configuración cliente, prepararla siguiendo el apartado Firebase.
+4. La configuración cliente Firebase del equipo ya está incluida; no hace falta ejecutar el script para este proyecto.
 
 Con `ANDROID_HOME` apuntando al SDK, desde PowerShell:
 
@@ -21,6 +21,10 @@ El APK se genera en `app/build/outputs/apk/debug/app-debug.apk`. Las cachés y l
 
 El backend es Firebase Authentication y Cloud Firestore. No hay servidor Node, Java o API REST propio que deba iniciarse por separado.
 
+La configuración pública del cliente Android está incluida en `app/src/main/assets/firebase-config.json`. Al clonar o actualizar este repositorio, sincronizar Gradle y volver a ejecutar la app. No es necesario descargar otro archivo ni configurar Firebase por integrante.
+
+Para sustituir la configuración si el equipo cambia de proyecto Firebase:
+
 1. Usar la app Android **com.casacheck.app** registrada en el proyecto del equipo (`kotlin-firebase-1ae97`).
 2. Descargar su `google-services.json` desde la configuración de Firebase.
 3. Ejecutar:
@@ -29,7 +33,7 @@ El backend es Firebase Authentication y Cloud Firestore. No hay servidor Node, J
 .\scripts\configure-firebase.ps1 -GoogleServicesPath 'C:\ruta\google-services.json'
 ```
 
-Esto crea `app/src/main/assets/firebase-config.json`, excluido del repositorio Git. Cada integrante debe prepararlo en su computadora. No colocar cuentas de servicio, claves administrativas ni contraseñas en el proyecto.
+Esto actualiza `app/src/main/assets/firebase-config.json`, la configuración pública del cliente Android que sí se versiona. No colocar cuentas de servicio, claves administrativas ni contraseñas en el proyecto.
 
 Correo/contraseña está habilitado y las reglas privadas de `firebase/firestore.rules` ya se publicaron en el proyecto del equipo. Para otro proyecto, habilitar Authentication/Firestore y publicar esas reglas; nunca usar reglas abiertas. Ver [backend y estructura](docs/ARQUITECTURA.md).
 
@@ -62,7 +66,7 @@ Consultar [guía del equipo](docs/CONTRIBUIR.md) y [resultados de verificación]
 
 ## Compartir la carpeta con el equipo
 
-Compartir esta carpeta directamente y abrir su raíz en Android Studio. La copia de trabajo conserva el archivo cliente Firebase; al clonar desde Git debe generarse con el script de configuración. No contiene credenciales administrativas.
+Compartir esta carpeta directamente y abrir su raíz en Android Studio. El archivo cliente Firebase del equipo está incluido también en Git. No contiene credenciales administrativas.
 
 El APK verificado se conserva en `app/build/outputs/apk/debug/app-debug.apk`. Es el único artefacto de compilación que se mantiene en esta entrega. Las cachés y los demás resultados de compilación se regeneran al ejecutar Gradle.
 

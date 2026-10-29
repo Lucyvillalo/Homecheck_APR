@@ -2,7 +2,7 @@
 
 ## Preparación
 
-Abrir la raíz en Android Studio, usar JDK 21/SDK 37 y generar la configuración Firebase con el script del README. Mantener applicationId com.casacheck.app para que coincida con la app registrada. Cada integrante debe usar su propia cuenta de prueba; las reglas separan datos por UID.
+Abrir la raíz en Android Studio, usar JDK 21/SDK 37 y sincronizar Gradle. La configuración cliente Firebase del equipo ya está incluida. Mantener applicationId com.casacheck.app para que coincida con la app registrada. Cada integrante debe usar su propia cuenta de prueba; las reglas separan datos por UID.
 
 ## Convenciones
 
@@ -36,7 +36,7 @@ Requiere conexión y Firebase configurado. Crea solo datos ficticios; no envía 
 
 ## Compartir
 
-Compartir la carpeta directamente o usar Git. Al clonar desde Git, preparar firebase-config.json con el script de configuración; en una copia completa puede conservarse el cliente Firebase del equipo. Los recursos originales, las pruebas y la licencia Inter deben permanecer en el proyecto. El APK verificado está en app/build/outputs/apk/debug/app-debug.apk. Las cachés y compilaciones temporales no forman parte del código fuente.
+Compartir la carpeta directamente o usar Git. Al clonar desde Git, firebase-config.json ya contiene la configuración pública del cliente Android del equipo; basta sincronizar y compilar. Los recursos originales, las pruebas y la licencia Inter deben permanecer en el proyecto. El APK verificado está en app/build/outputs/apk/debug/app-debug.apk. Las cachés y compilaciones temporales no forman parte del código fuente.
 
 ## Pruebas de los tres perfiles
 

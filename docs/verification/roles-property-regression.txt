@@ -1,0 +1,6 @@
+
+com.casacheck.app.PropertyFlowEmulatorTest:.
+
+Time: 7.088
+
+OK (1 test)

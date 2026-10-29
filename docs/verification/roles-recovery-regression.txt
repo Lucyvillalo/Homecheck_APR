@@ -1,0 +1,6 @@
+
+com.casacheck.app.RecoveryIntentTest:..
+
+Time: 14.647
+
+OK (2 tests)

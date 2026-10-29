@@ -1,0 +1,22 @@
+HomeCheck APR — 28/10/2026 — Android API 24
+Auth oficial local, proyecto demo-homecheck-reset, sin correos reales.
+
+RecoveryIntentTest: OK (2 tests), 19.913 s
+- Inicio desde ACTION_VIEW: formulario sin pegar enlace, cambio real de contraseña.
+- Se rechaza contraseña anterior, se acepta la nueva y se conserva el UID.
+- Rotación después de éxito conserva confirmación y regreso al login con correo.
+- App ya abierta: onNewIntent entrega el enlace a la misma Activity.
+- Recreación real de Activity borra la contraseña aún no guardada y vuelve a verificar el código.
+- Reemplazo por enlace de otro proyecto: error, sin formulario ni sesión.
+
+PasswordRecoveryEmulatorTest + AccountAccessTest: OK (6 tests), 30.478 s
+
+El primer intento de RecoveryIntentTest falló por el seguimiento de Intent de
+ActivityScenario, que deja de registrar los eventos cuando cambia action/data.
+Se verificó su implementación oficial y se cambió el controlador de prueba para
+observar las Activity reales mediante ActivityLifecycleMonitorRegistry.
+No se retiraron las aserciones ni se cambió el Intent de producción para acomodar la prueba.
+
+Estos resultados NO verifican la asociación HTTPS del dominio de producción,
+la resolución implícita del enlace desde un correo real ni la entrega al buzón.
+En el momento de estas pruebas locales, assetlinks todavía no estaba publicado. Después se completó la sesión y se publicó y verificó el dominio; ver firebase-deployment-results.txt.

@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.casacheck.app",
+      "sha256_cert_fingerprints": [
+        "AE:56:85:DE:A2:4D:BC:35:0E:B9:E5:2C:4B:D6:18:59:9E:71:28:14:F4:19:58:04:D5:31:7A:3B:FC:F0:06:CB"
+      ]
+    }
+  }
+]

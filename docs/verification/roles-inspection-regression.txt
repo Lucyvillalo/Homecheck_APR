@@ -1,0 +1,6 @@
+
+com.casacheck.app.InspectionJourneyTest:.
+
+Time: 13.61
+
+OK (1 test)

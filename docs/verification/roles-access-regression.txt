@@ -1,0 +1,7 @@
+
+com.casacheck.app.PasswordRecoveryEmulatorTest:...
+com.casacheck.app.AccountAccessTest:...
+
+Time: 32.981
+
+OK (6 tests)

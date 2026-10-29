@@ -4,3 +4,20 @@
 local.properties
 .idea/
 *.iml
+
+app/src/main/assets/firebase-config.json
+
+tmp/
+
+# Configuración de equipo y artefactos de entrega
+**/google-services.json
+*.jks
+*.keystore
+*.log
+*.zip
+
+# Cachés de despliegue y Python
+**/.firebase/
+__pycache__/
+*.pyc
+*.hprof

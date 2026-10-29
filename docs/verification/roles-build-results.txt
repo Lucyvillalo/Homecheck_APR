@@ -1,0 +1,7 @@
+HomeCheck 1.2 / versionCode 3 — 28/10/2026
+assembleDebug, assembleDebugAndroidTest, testDebugUnitTest, lintDebug: BUILD SUCCESSFUL.
+12 unit tests, 0 failures, 0 errors.
+Lint: 0 errors, 6 warnings.
+RoleWorkflowEmulatorTest uses Compose v2 StandardTestDispatcher; UI operations stay on the instrumentation thread and network fixtures use Dispatchers.IO.
+APK bytes=21372629
+APK SHA-256=36812522479723397defcbe3e048bad4b7c1594572eea9523619733f5967bb11

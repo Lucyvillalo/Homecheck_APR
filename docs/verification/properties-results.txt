@@ -1,0 +1,27 @@
+HomeCheck APR — 28/10/2026
+Proyecto de pruebas aislado: demo-homecheck-reset
+Auth oficial local: 127.0.0.1:9099
+Firestore oficial local: 127.0.0.1:8080
+
+scripts/test-property-rules.py: 32 comprobaciones PASS
+Incluye propiedad privada, aislamiento de terceros, rechazo de propietario falso,
+campos públicos permitidos, primera solicitud, privacidad de solicitudes,
+aprobación del propietario, invitación atómica destinada a un UID,
+rechazo de otro destinatario, datos de inspección por autor,
+revocación y rechazo de reutilización de invitación consumida.
+
+PropertyFlowEmulatorTest: OK (1 test), 11.769 s, Android API 24
+SDK real Firebase + Compose:
+crear propiedad -> publicar -> solicitar como inquilino -> aprobar -> aceptar
+-> compartir metadatos -> recibir sin firmas ni rutas locales
+-> comprobar pantalla propietario -> retirar anuncio -> revocar acceso.
+
+Primer intento API 36.1: sistema del emulador cerrado; no se contó como éxito.
+Primer intento SDK API 24: detectó lectura inicial denegada en solicitud inexistente.
+Se corrigió la regla únicamente para la solicitud propia todavía inexistente.
+Se añadieron pruebas de acceso positivo y negativo, y el recorrido completo pasó.
+
+No se enviaron correos, solicitudes ni anuncios a Firebase de producción.
+Las nuevas reglas se compilaron y publicaron correctamente en kotlin-firebase-1ae97 el 28/10/2026.
+
+Verificación final del código: assembleDebug, testDebugUnitTest y lintDebug: BUILD SUCCESSFUL (3m 22s). Doce pruebas unitarias sin fallos; lint: 0 errores y 6 advertencias. Nueve pruebas Android aprobadas en total (1 propiedades, 2 intent/ciclo de vida, 6 recuperación/cuenta).

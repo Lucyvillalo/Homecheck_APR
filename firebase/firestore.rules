@@ -1,0 +1,178 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) { return request.auth != null && request.auth.uid == uid; }
+
+    function signed() { return request.auth != null; }
+    function role() { return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol; }
+    function hasRole(value) { return signed() && role() == value; }
+    function manager() { return hasRole('Propietario'); }
+    function property(p) { return get(/databases/$(database)/documents/properties/$(p)).data; }
+    function assigned(p) {
+      return hasRole('Encargado') && exists(/databases/$(database)/documents/staffAssignments/$(p + '_' + request.auth.uid))
+        && get(/databases/$(database)/documents/staffAssignments/$(p + '_' + request.auth.uid)).data.ownerUid == property(p).ownerUid;
+    }
+    function member(p) { return signed() && ((role() in ['Propietario','Inquilino'] && request.auth.uid in property(p).memberUids) || assigned(p)); }
+    function owns(p) { return manager() && property(p).ownerUid == request.auth.uid; }
+    match /properties/{p} {
+      function valid(d) {
+        return d.keys().hasOnly(['ownerUid','name','address','type','tenantUid','memberUids','activeInviteId','activeStaffInviteId'])
+          && d.name is string && d.name.size() >= 3 && d.name.size() <= 100
+          && d.address is string && d.address.size() >= 5 && d.address.size() <= 300
+          && d.type in ['Casa','Apartamento','Salón'] && d.activeInviteId is string
+          && d.get('activeStaffInviteId','') is string && d.get('activeStaffInviteId','').size() in [0,64];
+      }
+      function accepting() {
+        let inv = get(/databases/$(database)/documents/propertyInvites/$(resource.data.activeInviteId)).data;
+        let after = getAfter(/databases/$(database)/documents/propertyInvites/$(resource.data.activeInviteId)).data;
+        return hasRole('Inquilino') && resource.data.tenantUid == '' && inv.propertyId == p && inv.ownerUid == resource.data.ownerUid
+          && inv.status == 'pending' && inv.expiresAt > request.time
+          && (inv.targetUid == '' || inv.targetUid == request.auth.uid)
+          && after.status == 'used' && after.usedBy == request.auth.uid
+          && request.auth.uid != resource.data.ownerUid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tenantUid','memberUids'])
+          && request.resource.data.tenantUid == request.auth.uid
+          && request.resource.data.memberUids == [resource.data.ownerUid, request.auth.uid]
+          && !existsAfter(/databases/$(database)/documents/rentalListings/$(p));
+      }
+      allow read: if signed() && ((role() in ['Propietario','Inquilino'] && request.auth.uid in resource.data.memberUids) || (hasRole('Encargado') && resource.data.ownerUid == request.auth.uid) || assigned(p));
+      allow create: if manager() && valid(request.resource.data) && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.tenantUid == '' && request.resource.data.memberUids == [request.auth.uid]
+        && request.resource.data.activeInviteId == '';
+      allow update: if signed() && valid(request.resource.data) &&
+        ((manager() && resource.data.ownerUid == request.auth.uid && request.resource.data.ownerUid == resource.data.ownerUid
+          && ((request.resource.data.tenantUid == resource.data.tenantUid && request.resource.data.memberUids == resource.data.memberUids)
+             || (request.resource.data.tenantUid == '' && request.resource.data.memberUids == [request.auth.uid])))
+         || accepting());
+      match /inspections/{id} {
+        allow read: if member(p);
+        allow create: if member(p) && request.resource.data.keys().hasOnly(['authorUid','payload'])
+          && request.resource.data.authorUid == request.auth.uid && id.matches(request.auth.uid + '_.*')
+          && request.resource.data.payload is string && request.resource.data.payload.size() < 850000;
+        allow update: if member(p) && resource.data.authorUid == request.auth.uid
+          && request.resource.data.authorUid == resource.data.authorUid
+          && request.resource.data.keys().hasOnly(['authorUid','payload'])
+          && request.resource.data.payload is string && request.resource.data.payload.size() < 850000;
+      }
+    }
+    match /rentalListings/{p} {
+      allow get: if hasRole('Inquilino') && !exists(/databases/$(database)/documents/rentalListings/$(p));
+      allow read: if resource.data.published == true;
+      allow create, update: if manager() && owns(p) && property(p).tenantUid == ''
+        && request.resource.data.keys().hasOnly(['ownerUid','title','zone','description','priceCents','published'])
+        && request.resource.data.ownerUid == request.auth.uid && request.resource.data.published == true
+        && request.resource.data.title is string && request.resource.data.title.size() >= 3 && request.resource.data.title.size() <= 100
+        && request.resource.data.zone is string && request.resource.data.zone.size() >= 3 && request.resource.data.zone.size() <= 100
+        && request.resource.data.description is string && request.resource.data.description.size() >= 10 && request.resource.data.description.size() <= 2000
+        && request.resource.data.priceCents is int && request.resource.data.priceCents > 0 && request.resource.data.priceCents <= 100000000;
+      allow delete: if owns(p) || (hasRole('Inquilino') && property(p).tenantUid == ''
+        && getAfter(/databases/$(database)/documents/properties/$(p)).data.tenantUid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/propertyInvites/$(property(p).activeInviteId)).data.usedBy == request.auth.uid
+        && getAfter(/databases/$(database)/documents/propertyInvites/$(property(p).activeInviteId)).data.status == 'used');
+    }
+    match /propertyInvites/{id} {
+      allow get: if hasRole('Inquilino') || (manager() && resource.data.ownerUid == request.auth.uid);
+      allow list: if false;
+      allow create: if owns(request.resource.data.propertyId)
+        && request.resource.data.keys().hasOnly(['ownerUid','propertyId','propertyName','targetUid','usedBy','status','expiresAt'])
+        && request.resource.data.ownerUid == request.auth.uid && request.resource.data.usedBy == ''
+        && request.resource.data.status == 'pending' && request.resource.data.targetUid is string
+        && request.resource.data.propertyName is string && request.resource.data.propertyName.size() <= 100
+        && request.resource.data.expiresAt > request.time && request.resource.data.expiresAt < request.time + duration.value(8,'d')
+        && getAfter(/databases/$(database)/documents/properties/$(request.resource.data.propertyId)).data.activeInviteId == id;
+      allow update: if hasRole('Inquilino') && resource.data.status == 'pending' && resource.data.expiresAt > request.time
+        && (resource.data.targetUid == '' || resource.data.targetUid == request.auth.uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','usedBy'])
+        && request.resource.data.status == 'used' && request.resource.data.usedBy == request.auth.uid
+        && getAfter(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.tenantUid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.activeInviteId == id;
+    }
+    match /rentalApplications/{id} {
+      function validApproval() {
+        let afterProperty = getAfter(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data;
+        let invitation = getAfter(/databases/$(database)/documents/propertyInvites/$(afterProperty.activeInviteId)).data;
+        return property(resource.data.propertyId).tenantUid == ''
+          && invitation.propertyId == resource.data.propertyId && invitation.ownerUid == request.auth.uid
+          && invitation.targetUid == resource.data.applicantUid && invitation.status == 'pending'
+          && invitation.expiresAt > request.time && request.resource.data.inviteCode.size() == 32;
+      }
+      // A transaction must be able to check its own not-yet-created application.
+      allow get: if hasRole('Inquilino') && id.matches('.*_' + request.auth.uid)
+        && !exists(/databases/$(database)/documents/rentalApplications/$(id));
+      allow read: if signed() && ((manager() && resource.data.ownerUid == request.auth.uid) || (hasRole('Inquilino') && resource.data.applicantUid == request.auth.uid));
+      allow create: if hasRole('Inquilino') && request.resource.data.keys().hasOnly(['propertyId','ownerUid','applicantUid','applicantName','status','inviteCode','propertyName'])
+        && id == request.resource.data.propertyId + '_' + request.auth.uid
+        && request.resource.data.applicantUid == request.auth.uid && request.resource.data.ownerUid != request.auth.uid
+        && request.resource.data.get('propertyName', get(/databases/$(database)/documents/rentalListings/$(request.resource.data.propertyId)).data.title) == get(/databases/$(database)/documents/rentalListings/$(request.resource.data.propertyId)).data.title
+        && request.resource.data.applicantName is string && request.resource.data.applicantName.size() <= 100
+        && request.resource.data.status == 'pending' && request.resource.data.inviteCode == ''
+        && property(request.resource.data.propertyId).tenantUid == ''
+        && get(/databases/$(database)/documents/rentalListings/$(request.resource.data.propertyId)).data.published == true
+        && get(/databases/$(database)/documents/rentalListings/$(request.resource.data.propertyId)).data.ownerUid == request.resource.data.ownerUid;
+      allow update: if manager() && resource.data.ownerUid == request.auth.uid && resource.data.status == 'pending'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','inviteCode'])
+        && request.resource.data.status in ['approved','declined'] && request.resource.data.inviteCode is string
+        && request.resource.data.inviteCode.size() <= 32
+        && (request.resource.data.status == 'declined' || validApproval());
+    }
+
+
+    // Delegation never modifies ownership, the tenant or the private membership array.
+    match /staffInvites/{id} {
+      allow get: if signed() && (role() == 'Encargado' || (manager() && resource.data.ownerUid == request.auth.uid));
+      allow create: if owns(request.resource.data.propertyId)
+        && request.resource.data.keys().hasOnly(['ownerUid','propertyId','propertyName','status','usedBy','expiresAt'])
+        && request.resource.data.ownerUid == request.auth.uid && request.resource.data.status == 'pending'
+        && request.resource.data.usedBy == '' && request.resource.data.propertyName is string
+        && request.resource.data.propertyName.size() <= 100
+        && request.resource.data.expiresAt > request.time && request.resource.data.expiresAt < request.time + duration.value(8,'d')
+        && getAfter(/databases/$(database)/documents/properties/$(request.resource.data.propertyId)).data.activeStaffInviteId == id;
+      allow update: if hasRole('Encargado') && resource.data.status == 'pending' && resource.data.expiresAt > request.time
+        && property(resource.data.propertyId).get('activeStaffInviteId','') == id
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','usedBy'])
+        && request.resource.data.status == 'used' && request.resource.data.usedBy == request.auth.uid
+        && getAfter(/databases/$(database)/documents/staffAssignments/$(resource.data.propertyId + '_' + request.auth.uid)).data.inviteId == id;
+    }
+    match /staffAssignments/{id} {
+      allow read: if signed() && ((manager() && resource.data.ownerUid == request.auth.uid)
+        || (hasRole('Encargado') && resource.data.staffUid == request.auth.uid));
+      function validAcceptance() {
+        let d = request.resource.data;
+        let invite = get(/databases/$(database)/documents/staffInvites/$(d.inviteId)).data;
+        let after = getAfter(/databases/$(database)/documents/staffInvites/$(d.inviteId)).data;
+        return d.keys().hasOnly(['propertyId','ownerUid','staffUid','staffName','inviteId'])
+          && d.staffUid == request.auth.uid && d.ownerUid == property(d.propertyId).ownerUid
+          && d.staffUid != d.ownerUid && id == d.propertyId + '_' + request.auth.uid
+          && d.staffName is string && d.staffName.size() <= 100
+          && property(d.propertyId).get('activeStaffInviteId','') == d.inviteId
+          && invite.propertyId == d.propertyId && invite.ownerUid == d.ownerUid
+          && invite.status == 'pending' && invite.expiresAt > request.time
+          && after.status == 'used' && after.usedBy == request.auth.uid;
+      }
+      allow create: if hasRole('Encargado') && validAcceptance();
+      allow update: if hasRole('Encargado') && resource.data.staffUid == request.auth.uid
+        && request.resource.data.propertyId == resource.data.propertyId && request.resource.data.ownerUid == resource.data.ownerUid
+        && validAcceptance();
+      allow delete: if owns(resource.data.propertyId);
+    }
+
+    match /usuarios/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && request.resource.data.idUsuario == uid
+        && request.resource.data.rol in ['Inquilino', 'Propietario', 'Encargado'];
+      allow update: if isOwner(uid) && request.resource.data.idUsuario == uid
+        && request.resource.data.rol == resource.data.rol;
+      match /inspecciones/{id} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid) && request.resource.data.idUsuario == uid
+          && request.resource.data.payload is string && request.resource.data.payload.size() < 900000;
+      }
+      match /{collection}/{id} {
+        allow read: if isOwner(uid) && collection in ['propiedades', 'espacios', 'checklists', 'inventario', 'elementos', 'evidencias'];
+        allow create, update: if isOwner(uid)
+          && collection in ['propiedades', 'espacios', 'checklists', 'inventario', 'elementos', 'evidencias']
+          && request.resource.data.idUsuario == uid;
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+
+com.casacheck.app.RoleWorkflowEmulatorTest:....
+
+Time: 62.924
+
+OK (4 tests)

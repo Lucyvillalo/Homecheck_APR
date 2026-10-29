@@ -1,0 +1,113 @@
+i  emulators: Starting emulators: auth, firestore
+i  emulators: Detected demo project ID "demo-homecheck-reset", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+i  firestore: Firestore Emulator logging to firestore-debug.log
++  firestore: Firestore Emulator UI websocket is running on 9150.
+i  Running script: C:\Users\lucia\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -X utf8 C:\APR_homecheck\Homecheck_APR\scripts\test-role-permissions.py
+PASS create Propietario profile
+PASS create Inquilino profile
+PASS create Inquilino profile
+PASS tenant cannot create an owner property
+PASS owner creates property
+PASS outsider cannot read private address
+PASS tenant cannot claim property without invitation
+PASS outsider cannot publish
+PASS public listing rejects private fields
+PASS owner publishes sanitized listing
+PASS public catalog is readable
+PASS applicant can check their missing application
+PASS outsider cannot check another missing application
+PASS tenant sends application
+PASS application is private
+PASS tenant cannot approve own application
+PASS owner approves with atomic targeted invitation
+PASS targeted invitation rejects another account
+PASS tenant atomically accepts and becomes member
+PASS linked tenant reads private property
+PASS tenant cannot replace owner
+PASS tenant shares inspection metadata
+PASS owner reads shared metadata
+PASS outsider cannot read shared inspection
+PASS owner cannot overwrite tenant authorship
+PASS used invitation cannot be reset
+PASS owner revokes tenant access
+PASS revoked tenant loses private access
+PASS revocation includes inspection access
+PASS consumed invitation cannot restore revoked access
+PASS owner withdraws listing
+PASS withdrawn listing no longer public
+ALL PROPERTY RULES CHECKS PASSED (local emulators only)
+PASS create Propietario profile
+PASS create Propietario profile
+PASS create Inquilino profile
+PASS create Encargado profile
+PASS create Encargado profile
+PASS create Inquilino profile
+PASS create Inquilino profile
+PASS staff cannot promote their own stored role
+PASS staff cannot register a property even in their own name
+PASS owner registers property
+PASS staff cannot read a property before assignment
+PASS seed legacy staff-created property using emulator admin
+PASS legacy staff record remains readable
+PASS legacy staff ownership does not grant management
+PASS legacy staff owner cannot publish
+PASS owner publishes property
+PASS tenant requests rental
+PASS another tenant can submit pending request while available
+PASS staff cannot read rental requests
+PASS staff cannot approve rental requests
+PASS staff cannot submit a tenant request
+PASS owner approves and invites tenant
+PASS tenant invitation is not a staff invitation
+PASS staff cannot claim a tenant relationship
+PASS rental acceptance must withdraw the public listing atomically
+PASS tenant accepts and withdraws availability atomically
+PASS rented property is no longer advertised
+PASS owner cannot advertise an occupied property
+PASS owner cannot approve a second tenant for an occupied property
+PASS seed an occupied legacy advertisement with emulator admin
+PASS occupied legacy advertisement rejects a correctly formed tenant request
+PASS remove the legacy advertisement fixture
+PASS another owner registers property
+PASS another owner publishes vacant property
+PASS owner role cannot act as a tenant
+PASS staff role cannot act as a tenant on a vacant listing
+PASS owner creates a separate operational invitation
+PASS staff cannot self-assign without consuming invitation atomically
+PASS owner cannot fabricate staff acceptance
+PASS tenant cannot consume an operational invitation
+PASS staff accepts explicit operational delegation
+PASS staff sees own assignment
+PASS owner sees their delegated assignment
+PASS tenant cannot access staff administration
+PASS another staff account cannot inspect this assignment
+PASS another owner cannot inspect a private delegation
+PASS assigned staff reads the property
+PASS assignment does not grant access to another property
+PASS operational delegation preserves owner and tenant membership
+PASS assigned staff records inspection data
+PASS tenant reads delegated inspection data
+PASS owner reads delegated inspection data
+PASS staff cannot modify property details
+PASS staff cannot remove the tenant
+PASS staff cannot take ownership
+PASS staff cannot publish advertisements
+PASS staff cannot withdraw advertisements
+PASS staff cannot transfer delegation
+PASS tenant cannot revoke staff
+PASS another owner cannot revoke this delegation
+PASS owner revokes only the operational assignment
+PASS revoked staff loses property access
+PASS revoked staff loses shared inspection access
+PASS revoked staff cannot continue shared work
+PASS staff revocation does not revoke tenant access
+PASS tenant retains existing inspection data
+PASS consumed invitation cannot reinstate a revoked assignment
+ALL DISTINCT ROLE CHECKS PASSED (local emulators only)
++  Script exited successfully (code 0)
+i  emulators: Shutting down emulators.
+i  firestore: Stopping Firestore Emulator
+!  Firestore Emulator has exited upon receiving signal: SIGINT
+i  auth: Stopping Authentication Emulator
+i  hub: Stopping emulator hub
+i  logging: Stopping Logging Emulator

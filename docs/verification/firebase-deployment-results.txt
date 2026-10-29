@@ -1,0 +1,37 @@
+HomeCheck APR — 28/10/2026
+Proyecto: kotlin-firebase-1ae97
+
+Firebase CLI: sesión renovada correctamente; projects:list aprobado.
+Firestore: reglas compiladas, subidas y released; Deploy complete.
+Android app: com.casacheck.app; huellas SHA-1 y SHA-256 registradas.
+
+Antes de publicar Hosting se consultaron las versiones autenticadas:
+versionCount=0, versions=[], liveRelease=null.
+Se publicó inicialmente /.well-known/assetlinks.json; después se añadieron index.html y homecheck-logo.png para evitar un 404 en la continuación web. Las tres rutas devuelven HTTP 200 y el logo publicado coincide con el original del proyecto.
+No se reemplazó contenido web anterior.
+
+HTTP público: 200, Content-Type application/json.
+La asociación contiene com.casacheck.app y la SHA-256 del APK debug local.
+Google Digital Asset Links: HTTP 200, linked=true.
+
+Verificación real Android 12/API 31:
+- pm get-app-links: dominio kotlin-firebase-1ae97.firebaseapp.com = verified.
+- Verification link handling allowed: true.
+- ACTION_VIEW/BROWSABLE con enlace /__/auth/action, sin -p ni componente: Status ok, Activity com.casacheck.app/.MainActivity, COLD.
+- ACTION_VIEW con /__/auth/links y acción anidada: misma MainActivity, intent delivered to currently running top-most instance, Status ok.
+- Jerarquía UI: paquete HomeCheck presente, pantalla de error explícita para el código ficticio inválido y acción Solicitar otro enlace presentes.
+- No se usó pm set-app-links ni selección forzada del usuario.
+- Captura real: link-error-api31.png.
+- El código inválido no pertenece a ninguna cuenta y solo verifica rechazo, no entrega al buzón.
+No se activó Storage ni facturación.
+
+Lectura autenticada posterior: publishedRulesMatchTestedSource=true. SHA-256 del archivo de reglas: e80ecc359ac0ecd95d48804d5dc2e1f065865e4a3ac20908c595583080ed1d11.
+
+Pruebas Firebase real en API 31: AccountRegistrationLiveTest + PasswordRecoveryLiveValidationTest: OK (2 tests), 49.168 s. No se utilizaron cuentas personales.
+
+Roles v1.2 — 28/10/2026
+Firestore deploy: compiled, uploaded, released; Deploy complete.
+publishedRulesMatchTestedSource=true
+SHA-256=9317e900b2ad7b75ff05178d28c03dcda9a790fa1fd21565e61c32f8dfe3ff9e
+Release=projects/kotlin-firebase-1ae97/rulesets/6593735b-1adf-4072-aca4-69cd29cba265
+Android API31 v1.2: domain verified; original debug certificate unchanged.

@@ -1,0 +1,7 @@
+
+com.casacheck.app.AccountRegistrationLiveTest:.
+com.casacheck.app.PasswordRecoveryLiveValidationTest:.
+
+Time: 29.454
+
+OK (2 tests)
